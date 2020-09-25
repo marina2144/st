@@ -1,3 +1,5 @@
+import java.io.*;
+
 import javax.servlet.*;
 import javax.servlet.http.*;
 
@@ -26,7 +28,7 @@ public class CheckDataMatrix extends HttpServlet{
 	private static final Logger logger = Logger.getLogger("DataMatrix");
 	
 	private int HTTPstatus=200;
-	private int message="";
+	private String message="";
 	
 	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException{
 						
@@ -46,40 +48,37 @@ public class CheckDataMatrix extends HttpServlet{
 		}
 		catch (ParseException e){
 			logMes("Bad request body: "+param+". Exception: "+e.toString());
-			HTTPresult.put(400,"Bad request body");
+			HTTPstatus=400;
+			message="Bad request body";
 		}
 		if (param.length()==0){
 			logMes("Bad request: Empty body");
-			HTTPresult.put(400,"Empty body");
+			HTTPstatus=400;
+			message="Empty body";			
 		}
 		
-		String mes=HTTPresult.get(400);
-		if(mes!=null){
-			response.sendError(400,mes);
+		if(HTTPstatus!=200){
+			response.sendError(400,message);
 			return;
 		}
 		
 		//получение данных SQL и формирование ответа
 		connectUT(param);
 		
-		String mes=HTTPresult.get(500);
-		if(mes!=null){
-			response.sendError(500,mes);
+		if(HTTPstatus!=200){
+			response.sendError(400,message);
 			return;
-		}		
-		
-		String mes=HTTPresult.get(200);
-		
+		}
+
 		response.setContentType("application/json");
 		PrintWriter pw=response.getWriter();
-		pw.println(mes);
+		pw.println(message);
 		pw.close();		
 		
 	}
 	
 	private void connectUT(String param){
 		String query=getQueryText(param);
-		String response="";
 
 		DataSource ds;
 		JSONArray resJSON = new JSONArray();
@@ -102,24 +101,25 @@ public class CheckDataMatrix extends HttpServlet{
 			}
 			StringWriter out = new StringWriter();
 			JSONValue.writeJSONString(resJSON, out);
-			response=out.toString();
+			message=out.toString();
 		}
-		// Handle any errors that may have occurred.//todo перенести в лог
+		// Handle any errors that may have occurred.
 		catch (NamingException e) {
 			logMes("NamingException: "+e.toString());
-			HTTPresult.put(500,"NamingException");
+			HTTPstatus=500;
+			message="NamingException";				
 		}
 		catch (SQLException e) {
 			logMes("SQLException: "+e.toString());
-			HTTPresult.put(500,"SQLException");
+			HTTPstatus=500;
+			message="SQLException";			
 		}
 		catch (IOException e) {
 			logMes("IOException: "+e.toString());
-			HTTPresult.put(500,"IOException");
+			HTTPstatus=500;
+			message="IOException";	
 		}		  
 
-		HTTPresult.put(200,response);
-		return response;
 	}
 	
 	//записать сообщение в файл
