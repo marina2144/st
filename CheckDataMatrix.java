@@ -128,15 +128,15 @@ public class CheckDataMatrix extends HttpServlet{
 	}
 	private String getQueryText(String param){ //текст запроса к ценам товаров		
 		String query="select "
-						+"	nomenkl._Fld4299 artikul "
+						+"	_Reference169._Fld4299 artikul "
 						+"from "
-						+"	_Reference25834 DM "
-						+"join _InfoRg25894 statusDM on "
-						+"	DM._IDRRef=statusDM._Fld25895RRef and statusDM._Fld26017RRef=0xA825AC1F6B01E73D11E9676FEDC17C8E --'INTRODUCED', введен в оборот "
+						+"	_Reference25834 "
+						+"join _InfoRg25894 _InfoRg25894 on "
+						+"	_Reference25834._IDRRef=_InfoRg25894._Fld25895RRef and _InfoRg25894._Fld26017RRef=0xA825AC1F6B01E73D11E9676FEDC17C8E --'INTRODUCED', введен в оборот "
 						+"join "
-						+"	_Reference169 nomenkl on "
-						+"	nomenkl._IDRRef=statusDM._Fld25920RRef "
-						+"where DM._Description='010290000021830721IGJ6QmlMUsq5v'";
+						+"	_Reference169 on "
+						+"	_Reference169._IDRRef=_InfoRg25894._Fld25920RRef "
+						+"where _Reference25834._Description='010290000021830721IGJ6QmlMUsq5v'";
 		
 		return query;
 	}
