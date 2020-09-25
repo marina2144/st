@@ -127,17 +127,50 @@ public class CheckDataMatrix extends HttpServlet{
 		logger.warning(mes);
 	}
 	private String getQueryText(String param){ //текст запроса к ценам товаров		
-		String query="select "
-						+"	* "
-						+"from "
-						+"	_Reference25834 "
-						+"left join _InfoRg25894 _InfoRg25894 on "
-						+"	_Reference25834._IDRRef=_InfoRg25894._Fld25895RRef and _InfoRg25894._Fld26017RRef=0xA825AC1F6B01E73D11E9676FEDC17C8E --'INTRODUCED', введен в оборот "
-						+"left join "
-						+"	_Reference169 on "
-						+"	_Reference169._IDRRef=_InfoRg25894._Fld25920RRef "
-						+"where _Reference25834._Description='010290000021830721IGJ6QmlMUsq5v'";
+		// String query="select "
+						// +"	* "
+						// +"from "
+						// +"	_Reference25834 "
+						// +"left join _InfoRg25894 _InfoRg25894 on "
+						// +"	_Reference25834._IDRRef=_InfoRg25894._Fld25895RRef and _InfoRg25894._Fld26017RRef=0xA825AC1F6B01E73D11E9676FEDC17C8E --'INTRODUCED', введен в оборот "
+						// +"left join "
+						// +"	_Reference169 on "
+						// +"	_Reference169._IDRRef=_InfoRg25894._Fld25920RRef "
+						// +"where _Reference25834._Description='010290000021830721IGJ6QmlMUsq5v'";
 		
+		
+		
+		String query=" select "
+						+" 	DM._IDRRef DMref,"
+						+" 	DM._Description DM31 "
+						+" into #DM"
+						+" from "
+						+" _Reference25834 DM"
+						+" where"
+						+" 	DM._Description='010290000021830721IGJ6QmlMUsq5v'"
+						+" select"
+						+" 	DM.DMref,"
+						+" 	statusDM._Fld25920RRef nomenklref,"
+						+" 	DM.DM31 DM31"
+						+" into #DMstatus"
+						+" from "
+						+" 	#DM DM"
+						+" 	join _InfoRg25894 statusDM on"
+						+" 	DM.DMref=statusDM._Fld25895RRef"
+						+" where	"
+						+" 	statusDM._Fld26017RRef=0xA825AC1F6B01E73D11E9676FEDC17C8E --'INTRODUCED', введен в оборот"
+						+" select "
+						+" 	DMstatus.nomenklref nomenklref,"
+						+" 	nomenkl._Fld4299 artikul,"
+						+" 	DMstatus.DM31 DM31"
+						+" from "
+						+" 	#DMstatus DMstatus"
+						+" 	join _Reference169 nomenkl on"
+						+" 	DMstatus.nomenklref=nomenkl._IDRRef"
+						+" drop table #DM"
+						+" drop table #DMstatus";
+		
+
 		return query;
 	}
 }
