@@ -131,9 +131,9 @@ public class CheckDataMatrix extends HttpServlet{
 						+"	_Reference169._Fld4299 artikul "
 						+"from "
 						+"	_Reference25834 "
-						+"join _InfoRg25894 _InfoRg25894 on "
+						+"left join _InfoRg25894 _InfoRg25894 on "
 						+"	_Reference25834._IDRRef=_InfoRg25894._Fld25895RRef and _InfoRg25894._Fld26017RRef=0xA825AC1F6B01E73D11E9676FEDC17C8E --'INTRODUCED', введен в оборот "
-						+"join "
+						+"left join "
 						+"	_Reference169 on "
 						+"	_Reference169._IDRRef=_InfoRg25894._Fld25920RRef "
 						+"where _Reference25834._Description='010290000021830721IGJ6QmlMUsq5v'";
