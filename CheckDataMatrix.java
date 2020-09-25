@@ -95,7 +95,7 @@ public class CheckDataMatrix extends HttpServlet{
 			ResultSet rs = cstmt.executeQuery();
 			while (rs.next()) {
 				JSONObject obj=new JSONObject();
-				obj.put("artikul",rs.getString("artikul"));
+				obj.put("artikul",rs.getString("_Fld4299"));
 				//obj.put("DM",rs.getString("DM"));
 				resJSON.add(obj);
 			}
@@ -128,7 +128,7 @@ public class CheckDataMatrix extends HttpServlet{
 	}
 	private String getQueryText(String param){ //текст запроса к ценам товаров		
 		String query="select "
-						+"	_Reference169._Fld4299 artikul "
+						+"	* "
 						+"from "
 						+"	_Reference25834 "
 						+"left join _InfoRg25894 _InfoRg25894 on "
