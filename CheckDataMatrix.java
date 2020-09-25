@@ -140,7 +140,8 @@ public class CheckDataMatrix extends HttpServlet{
 		
 		
 		
-		String query=" select "
+		String query="SET NOCOUNT ON; "
+						+" select "
 						+" 	DM._IDRRef DMref,"
 						+" 	DM._Description DM31 "
 						+" into #DM"
