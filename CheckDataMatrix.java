@@ -140,12 +140,23 @@ public class CheckDataMatrix extends HttpServlet{
 		
 		
 		String query="select "
-						+"	DM._IDRRef DMref, "
-						+"	DM._Description DM31 "
-						+"from "
-						+"	_Reference25834 DM "
-						+"where "
-						+"	DM._Description='010290000021830721IGJ6QmlMUsq5v'";
+						 +" 	DM._IDRRef DMref,"
+						 +" 	DM._Description DM31 "
+						 +" into #DM"
+						 +" from "
+						 +" 	_Reference25834 DM"
+						 +" where"
+						 +" 	DM._Description='010290000021830721IGJ6QmlMUsq5v'"
+						 +" select"
+						 +" 	DM.DMref,"
+						 +" 	statusDM._Fld25920RRef nomenklref,"
+						 +" 	DM.DM31 DM31"
+						 +" from "
+						 +" 	#DM DM"
+						 +" 	join _InfoRg25894 statusDM on"
+						 +" 	DM.DMref=statusDM._Fld25895RRef"
+						 +" where	"
+						 +" 	statusDM._Fld26017RRef=0xA825AC1F6B01E73D11E9676FEDC17C8E --'INTRODUCED', введен в оборот";
 		
 		// String query="SET NOCOUNT ON; "
 						// +" select "
