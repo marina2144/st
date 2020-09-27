@@ -95,7 +95,7 @@ public class CheckDataMatrix extends HttpServlet{
 			ResultSet rs = cstmt.executeQuery();
 			while (rs.next()) {
 				JSONObject obj=new JSONObject();
-				obj.put("artikul",rs.getString("_Fld4299"));
+				obj.put("artikul",rs.getString("DM31"));
 				//obj.put("DM",rs.getString("DM"));
 				resJSON.add(obj);
 			}
@@ -139,37 +139,44 @@ public class CheckDataMatrix extends HttpServlet{
 						// +"where _Reference25834._Description='010290000021830721IGJ6QmlMUsq5v'";
 		
 		
+		String query="select "
+						+"	DM._IDRRef DMref, "
+						+"	DM._Description DM31 "
+						+"from "
+						+"	_Reference25834 DM "
+						+"where "
+						+"	DM._Description='010290000021830721IGJ6QmlMUsq5v'";
 		
-		String query="SET NOCOUNT ON; "
-						+" select "
-						+" 	DM._IDRRef DMref,"
-						+" 	DM._Description DM31 "
-						+" into #DM"
-						+" from "
-						+" _Reference25834 DM"
-						+" where"
-						+" 	DM._Description='010290000021830721IGJ6QmlMUsq5v'"
-						+" select"
-						+" 	DM.DMref,"
-						+" 	statusDM._Fld25920RRef nomenklref,"
-						+" 	DM.DM31 DM31"
-						+" into #DMstatus"
-						+" from "
-						+" 	#DM DM"
-						+" 	join _InfoRg25894 statusDM on"
-						+" 	DM.DMref=statusDM._Fld25895RRef"
-						+" where	"
-						+" 	statusDM._Fld26017RRef=0xA825AC1F6B01E73D11E9676FEDC17C8E --'INTRODUCED', введен в оборот"
-						+" select "
-						+" 	DMstatus.nomenklref nomenklref,"
-						+" 	nomenkl._Fld4299 artikul,"
-						+" 	DMstatus.DM31 DM31"
-						+" from "
-						+" 	#DMstatus DMstatus"
-						+" 	join _Reference169 nomenkl on"
-						+" 	DMstatus.nomenklref=nomenkl._IDRRef"
-						+" drop table #DM"
-						+" drop table #DMstatus";
+		// String query="SET NOCOUNT ON; "
+						// +" select "
+						// +" 	DM._IDRRef DMref,"
+						// +" 	DM._Description DM31 "
+						// +" into #DM"
+						// +" from "
+						// +" _Reference25834 DM"
+						// +" where"
+						// +" 	DM._Description='010290000021830721IGJ6QmlMUsq5v'"
+						// +" select"
+						// +" 	DM.DMref,"
+						// +" 	statusDM._Fld25920RRef nomenklref,"
+						// +" 	DM.DM31 DM31"
+						// +" into #DMstatus"
+						// +" from "
+						// +" 	#DM DM"
+						// +" 	join _InfoRg25894 statusDM on"
+						// +" 	DM.DMref=statusDM._Fld25895RRef"
+						// +" where	"
+						// +" 	statusDM._Fld26017RRef=0xA825AC1F6B01E73D11E9676FEDC17C8E --'INTRODUCED', введен в оборот"
+						// +" select "
+						// +" 	DMstatus.nomenklref nomenklref,"
+						// +" 	nomenkl._Fld4299 artikul,"
+						// +" 	DMstatus.DM31 DM31"
+						// +" from "
+						// +" 	#DMstatus DMstatus"
+						// +" 	join _Reference169 nomenkl on"
+						// +" 	DMstatus.nomenklref=nomenkl._IDRRef"
+						// +" drop table #DM"
+						// +" drop table #DMstatus";
 		
 
 		return query;
