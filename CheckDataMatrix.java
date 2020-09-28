@@ -212,7 +212,7 @@ public class CheckDataMatrix extends HttpServlet{
 						 +" join "
 						 +" _Reference25834 DM on "
 						 +" DM._IDRRef=statusDM._Fld25895RRef and statusDM._Fld26017RRef=0xA825AC1F6B01E73D11E9676FEDC17C8E --'INTRODUCED', введен в оборот "
-						 +" and DM._Description='010290000021830721IGJ6QmlMUsq5v'";
+						 +" and DM._Description='"+param+"'";
 
 		return query;
 	}
