@@ -134,18 +134,18 @@ public class CheckDataMatrix extends HttpServlet{
 		logger.warning(mes);
 	}
 	private String getQueryText(String param){ //текст запроса к ценам товаров		
-		String query="select"
-						  +" 	nomenkl._Fld4299 artikul"
-						  +" 	,DM._Description DM"
-						  +" 	,statusDM._Fld26017RRef st"
-						  +" from "
-						  +" 	_Reference25834 DM "
-						  +" join _InfoRg25894 statusDM on "
-						  +" 	DM._IDRRef=statusDM._Fld25895RRef and statusDM._Fld26017RRef=0xA825AC1F6B01E73D11E9676FEDC17C8E --'INTRODUCED', введен в оборот "
-						  +" join "
-						  +" 	_Reference169 nomenkl on "
-						  +" 	nomenkl._IDRRef=statusDM._Fld25920RRef"
-						  +" where DM._Description='010290000021830721IGJ6QmlMUsq5v'";
+		// String query="select"
+						  // +" 	nomenkl._Fld4299 artikul"
+						  // +" 	,DM._Description DM"
+						  // +" 	,statusDM._Fld26017RRef st"
+						  // +" from "
+						  // +" 	_Reference25834 DM "
+						  // +" join _InfoRg25894 statusDM on "
+						  // +" 	DM._IDRRef=statusDM._Fld25895RRef and statusDM._Fld26017RRef=0xA825AC1F6B01E73D11E9676FEDC17C8E --'INTRODUCED', введен в оборот "
+						  // +" join "
+						  // +" 	_Reference169 nomenkl on "
+						  // +" 	nomenkl._IDRRef=statusDM._Fld25920RRef"
+						  // +" where DM._Description='010290000021830721IGJ6QmlMUsq5v'";
 		
 		
 		// String query="select "
@@ -198,6 +198,26 @@ public class CheckDataMatrix extends HttpServlet{
 						// +" drop table #DMstatus";
 		
 			 //query="select top 100 _Fld4299 artikul from _Reference169 where _Fld4299='310836643'";
+			 
+			 
+			 
+			String query="use trade_2017_stockmann; "
+						  +" select "
+						  +" 	nomenkl._Fld4299 artikul "
+						  +" 	,DM._IDRRef DMref "
+						  +" 	,DM._Description DM "
+						  +" 	,statusDM._Fld25895RRef statusDMref "
+						  +" 	,statusDM._Fld26017RRef statusDMcode "
+						  +" 	,nomenkl._IDRRef nomenklRef "
+						  +" 	, statusDM._Fld25920RRef statusDMnomenklRef "
+						  +" from "
+						  +" 	_Reference25834 DM "
+						  +" join _InfoRg25894 statusDM on "
+						  +" 	DM._IDRRef=statusDM._Fld25895RRef and statusDM._Fld26017RRef=0xA825AC1F6B01E73D11E9676FEDC17C8E --'INTRODUCED', введен в оборот "
+						  +" join "
+						  +" 	_Reference169 nomenkl on "
+						  +" 	nomenkl._IDRRef=statusDM._Fld25920RRef "
+						  +" where DM._Description='010290000021830721IGJ6QmlMUsq5v'";
 
 		return query;
 	}
