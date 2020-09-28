@@ -95,7 +95,7 @@ public class CheckDataMatrix extends HttpServlet{
 			ResultSet rs = cstmt.executeQuery();
 			while (rs.next()) {
 				JSONObject obj=new JSONObject();
-				obj.put("artikul",rs.getString("DM31"));
+				obj.put("artikul",rs.getString("artikul"));
 				//obj.put("DM",rs.getString("DM"));
 				resJSON.add(obj);
 			}
@@ -188,7 +188,7 @@ public class CheckDataMatrix extends HttpServlet{
 						// +" drop table #DM"
 						// +" drop table #DMstatus";
 		
-			query="select top 100 _Fld4299 artikul from _Reference169 where _Fld4299='310836643'";
+			 query="select top 100 _Fld4299 artikul from _Reference169 where _Fld4299='310836643'";
 
 		return query;
 	}
