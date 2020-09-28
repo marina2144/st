@@ -197,7 +197,7 @@ public class CheckDataMatrix extends HttpServlet{
 						// +" drop table #DM"
 						// +" drop table #DMstatus";
 		
-			 query="select top 100 _Fld4299 artikul from _Reference169 where _Fld4299='310836643'";
+			 //query="select top 100 _Fld4299 artikul from _Reference169 where _Fld4299='310836643'";
 
 		return query;
 	}
