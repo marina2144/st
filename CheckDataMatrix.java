@@ -205,12 +205,11 @@ public class CheckDataMatrix extends HttpServlet{
 						 +" select "
 						 +" nomenkl._Fld4299 artikul "
 						 +" from "
-						 +" _Reference169 nomenkl "
-						 +" join "
-						 +" _InfoRg25894 statusDM "
-						 +" on nomenkl._IDRRef=statusDM._Fld25920RRef "
-						 +" join "
-						 +" _Reference25834 DM on "
+						 +" _Reference169 nomenkl, "
+						 +" _InfoRg25894 statusDM, "
+						 +" _Reference25834 DM "
+						 +" WHERE "
+						 +" nomenkl._IDRRef=statusDM._Fld25920RRef and "
 						 +" DM._IDRRef=statusDM._Fld25895RRef and statusDM._Fld26017RRef=0xA825AC1F6B01E73D11E9676FEDC17C8E --'INTRODUCED', введен в оборот "
 						 +" and DM._Description='"+param+"'";
 
