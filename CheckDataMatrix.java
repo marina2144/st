@@ -57,11 +57,15 @@ public class CheckDataMatrix extends HttpServlet{
 		// }
 		
 		// if(HTTPstatus!=200){
-			// response.sendError(400,message);
+			// response.sendError(HTTPstatus,message);
 			// return;
 		// }
 		
 		String param=request.getParameter("DM");
+		if(param==null){
+			response.sendError(400,"DM parameter expected!");
+			return;			
+		}
 		
 		log(param);
 		
@@ -69,7 +73,7 @@ public class CheckDataMatrix extends HttpServlet{
 		connectUT(param);
 		
 		if(HTTPstatus!=200){
-			response.sendError(400,message);
+			response.sendError(HTTPstatus,message);
 			return;
 		}
 
