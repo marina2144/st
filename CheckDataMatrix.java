@@ -37,13 +37,7 @@ public class CheckDataMatrix extends HttpServlet{
 		String body = request.getReader().lines().collect(Collectors.joining(System.lineSeparator()));
 		try{
 			JSONObject JSONobj = (JSONObject)  new JSONParser().parse(body);  
-			JSONArray items = (JSONArray) JSONobj.get("items");
-			
-			int count=items.size();
-			for (int i=0;i<count;i++){
-				param=param+"'"+items.get(i).toString()+"',";
-			}
-			param=param.substring(0,param.length()-1);
+			param = JSONobj.get("DM").toString();
 		}
 		catch (ParseException e){
 			logMes("Bad request body: "+param+". Exception: "+e.toString());
