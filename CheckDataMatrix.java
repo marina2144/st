@@ -118,7 +118,10 @@ public class CheckDataMatrix extends HttpServlet{
 		logger.warning(mes);
 	}
 	private String getQueryText(String param){ //текст запроса к ценам товаров		
-		 String query="select "
+		 String query="declare @encoded varchar(max), @decoded varchar(max) "
+							+"set @encoded = '"+param+"' "
+							+"set @decoded = convert(varchar(max), cast('' as xml).value('xs:base64Binary(sql:variable(\"@encoded\"))', 'varbinary(max)')) "
+						 +" select "
 						 +" 	nomenkl._Fld4299 artikul "
 						 +" from "
 						 +" 	_Reference25834 DM "
@@ -127,7 +130,7 @@ public class CheckDataMatrix extends HttpServlet{
 						 +" join "
 						 +" 	_Reference169 nomenkl on "
 						 +" 	statusDM._Fld25920RRef=nomenkl._IDRRef "
-						 +" where DM._Description='"+param+"' and statusDM._Fld26017RRef=0xA825AC1F6B01E73D11E9676FEDC17C8E";
+						 +" where DM._Description=@decoded and statusDM._Fld26017RRef=0xA825AC1F6B01E73D11E9676FEDC17C8E --'INTRODUCED', введен в оборот";
 		
 		return query;
 	}
