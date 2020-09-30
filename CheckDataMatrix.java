@@ -57,19 +57,25 @@ public class CheckDataMatrix extends HttpServlet{
 	private void connectUT(String param){
 		String query=getQueryText(param);
 
+		Context initContext;
+		Context envContext;
 		DataSource ds;
+		Connection con;
+		CallableStatement cstmt;
+		ResultSet rs;
+		
 		JSONArray resJSON = new JSONArray();
 		
 		try 
 		{
-			Context initContext = new InitialContext();
-			Context envContext  = (Context)initContext.lookup("java:/comp/env");
+			initContext = new InitialContext();
+			envContext  = (Context)initContext.lookup("java:/comp/env");
 			ds = (DataSource)envContext.lookup("jdbc/UT");
 
-			Connection con = ds.getConnection();
-			CallableStatement cstmt = con.prepareCall(query);
+			con = ds.getConnection();
+			cstmt = con.prepareCall(query);
 
-			ResultSet rs = cstmt.executeQuery();
+			rs = cstmt.executeQuery();
 			
 			JSONObject obj=new JSONObject();
 			if (rs.next()) {
@@ -83,6 +89,14 @@ public class CheckDataMatrix extends HttpServlet{
 			StringWriter out = new StringWriter();
 			JSONValue.writeJSONString(resJSON, out);
 			message=out.toString();
+			
+			
+			rs.close();
+			cstmt.close();
+			con.close();
+			envContext.close();
+			initContext.close();
+			
 		}
 		// Handle any errors that may have occurred.
 		catch (NamingException e) {
