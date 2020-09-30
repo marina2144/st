@@ -29,15 +29,37 @@ public class CheckDataMatrix extends HttpServlet{
 	private int HTTPstatus=200;
 	private String message="";
 	
-	public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException{
-						
-		String param=request.getParameter("DM");
-		if(param==null){
-			response.sendError(400,"DM parameter expected!");
-			return;			
+	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException{
+			
+		//извлекаем список артикулов из тела запроса
+		String param="";
+			
+		String body = request.getReader().lines().collect(Collectors.joining(System.lineSeparator()));
+		try{
+			JSONObject JSONobj = (JSONObject)  new JSONParser().parse(body);  
+			JSONArray items = (JSONArray) JSONobj.get("items");
+			
+			int count=items.size();
+			for (int i=0;i<count;i++){
+				param=param+"'"+items.get(i).toString()+"',";
+			}
+			param=param.substring(0,param.length()-1);
+		}
+		catch (ParseException e){
+			logMes("Bad request body: "+param+". Exception: "+e.toString());
+			HTTPstatus=400;
+			message="Bad request body";
+		}
+		if (param.length()==0){
+			logMes("Bad request: Empty body");
+			HTTPstatus=400;
+			message="Empty body";
 		}
 		
-		log(param);
+		if(HTTPstatus!=200){
+			response.sendError(HTTPstatus,message);
+			return;
+		}
 		
 		//получение данных SQL и формирование ответа
 		connectUT(param);
