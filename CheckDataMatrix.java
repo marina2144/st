@@ -78,6 +78,7 @@ public class CheckDataMatrix extends HttpServlet{
 			}
 			else{
 				obj.put("artikul",null);
+				resJSON.add(obj);
 			}
 			StringWriter out = new StringWriter();
 			JSONValue.writeJSONString(resJSON, out);
