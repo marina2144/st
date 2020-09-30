@@ -131,6 +131,8 @@ public class CheckDataMatrix extends HttpServlet{
 						 +" 	_Reference169 nomenkl on "
 						 +" 	statusDM._Fld25920RRef=nomenkl._IDRRef "
 						 +" where DM._Description=@decoded and statusDM._Fld26017RRef=0xA825AC1F6B01E73D11E9676FEDC17C8E --'INTRODUCED', введен в оборот";
+						 
+		logMes(query);
 		
 		return query;
 	}
