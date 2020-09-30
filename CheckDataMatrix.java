@@ -49,6 +49,12 @@ public class CheckDataMatrix extends HttpServlet{
 			HTTPstatus=400;
 			message="Bad request body";			
 		}
+
+		if(HTTPstatus!=200){
+			response.sendError(HTTPstatus,message);
+			return;
+		}
+		
 		if (param.length()==0){
 			logMes("Bad request: Empty body");
 			HTTPstatus=400;
