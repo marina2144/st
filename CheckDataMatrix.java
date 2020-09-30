@@ -44,6 +44,11 @@ public class CheckDataMatrix extends HttpServlet{
 			HTTPstatus=400;
 			message="Bad request body";
 		}
+		catch (NullPointerException e){
+			logMes("Bad request body: "+param+". Exception: "+e.toString());
+			HTTPstatus=400;
+			message="Bad request body";			
+		}
 		if (param.length()==0){
 			logMes("Bad request: Empty body");
 			HTTPstatus=400;
