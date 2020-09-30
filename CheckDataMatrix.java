@@ -86,17 +86,17 @@ public class CheckDataMatrix extends HttpServlet{
 		}
 		// Handle any errors that may have occurred.
 		catch (NamingException e) {
-			logMes("NamingException: "+e.toString());
+			logMes("NamingException param = "+param+" : "+e.toString());
 			HTTPstatus=500;
 			message="NamingException";				
 		}
 		catch (SQLException e) {
-			logMes("SQLException: "+e.toString());
+			logMes("SQLException param = "+param+" : "+e.toString());
 			HTTPstatus=500;
 			message="SQLException";			
 		}
 		catch (IOException e) {
-			logMes("IOException: "+e.toString());
+			logMes("IOException param = "+param+" : "+e.toString());
 			HTTPstatus=500;
 			message="IOException";	
 		}		  
@@ -117,7 +117,7 @@ public class CheckDataMatrix extends HttpServlet{
 						 +" join "
 						 +" 	_Reference169 nomenkl on "
 						 +" 	statusDM._Fld25920RRef=nomenkl._IDRRef "
-						 +" where DM._Description='"+param+" and statusDM._Fld26017RRef=0xA825AC1F6B01E73D11E9676FEDC17C8E";
+						 +" where DM._Description='"+param+"' and statusDM._Fld26017RRef=0xA825AC1F6B01E73D11E9676FEDC17C8E";
 		
 		return query;
 	}
