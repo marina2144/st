@@ -90,12 +90,8 @@ public class CheckDataMatrix extends HttpServlet{
 			JSONValue.writeJSONString(resJSON, out);
 			message=out.toString();
 			
-			
 			rs.close();
 			cstmt.close();
-			con.close();
-			envContext.close();
-			initContext.close();
 			
 		}
 		// Handle any errors that may have occurred.
