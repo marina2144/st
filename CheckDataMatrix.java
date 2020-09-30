@@ -117,7 +117,7 @@ public class CheckDataMatrix extends HttpServlet{
 						 +" join "
 						 +" 	_Reference169 nomenkl on "
 						 +" 	statusDM._Fld25920RRef=nomenkl._IDRRef "
-						 +" where DM._Description='010290000021830721IGJ6QmlMUsq5v' and statusDM._Fld26017RRef=0xA825AC1F6B01E73D11E9676FEDC17C8E";
+						 +" where DM._Description='"+param+" and statusDM._Fld26017RRef=0xA825AC1F6B01E73D11E9676FEDC17C8E";
 		
 		return query;
 	}
