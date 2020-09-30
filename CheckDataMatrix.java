@@ -31,36 +31,6 @@ public class CheckDataMatrix extends HttpServlet{
 	
 	public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException{
 						
-		// //извлекаем список артикулов из тела запроса
-		// String param="";
-		
-		// String body = request.getReader().lines().collect(Collectors.joining(System.lineSeparator()));
-		// try{
-			// JSONObject JSONobj = (JSONObject)  new JSONParser().parse(body);  
-			// JSONArray items = (JSONArray) JSONobj.get("items");
-			
-			// int count=items.size();
-			// for (int i=0;i<count;i++){
-				// param=param+"'"+items.get(i).toString()+"',";
-			// }
-			// param=param.substring(0,param.length()-1);
-		// }
-		// catch (ParseException e){
-			// logMes("Bad request body: "+param+". Exception: "+e.toString());
-			// HTTPstatus=400;
-			// message="Bad request body";
-		// }
-		// if (param.length()==0){
-			// logMes("Bad request: Empty body");
-			// HTTPstatus=400;
-			// message="Empty body";			
-		// }
-		
-		// if(HTTPstatus!=200){
-			// response.sendError(HTTPstatus,message);
-			// return;
-		// }
-		
 		String param=request.getParameter("DM");
 		if(param==null){
 			response.sendError(400,"DM parameter expected!");
@@ -100,11 +70,14 @@ public class CheckDataMatrix extends HttpServlet{
 			CallableStatement cstmt = con.prepareCall(query);
 
 			ResultSet rs = cstmt.executeQuery();
-			while (rs.next()) {
-				JSONObject obj=new JSONObject();
+			
+			JSONObject obj=new JSONObject();
+			if (rs.next()) {
 				obj.put("artikul",rs.getString("artikul"));
-				//obj.put("DM",rs.getString("DM"));
 				resJSON.add(obj);
+			}
+			else{
+				obj.put("artikul",null);
 			}
 			StringWriter out = new StringWriter();
 			JSONValue.writeJSONString(resJSON, out);
@@ -145,72 +118,6 @@ public class CheckDataMatrix extends HttpServlet{
 						 +" 	statusDM._Fld25920RRef=nomenkl._IDRRef "
 						 +" where DM._Description='010290000021830721IGJ6QmlMUsq5v' and statusDM._Fld26017RRef=0xA825AC1F6B01E73D11E9676FEDC17C8E";
 		
-		
-		// String query="select "
-						 // +" 	DM._IDRRef DMref,"
-						 // +" 	DM._Description DM31 "
-						 // +" into #DM"
-						 // +" from "
-						 // +" 	_Reference25834 DM"
-						 // +" where"
-						 // +" 	DM._Description='010290000021830721IGJ6QmlMUsq5v'"
-						 // +" select"
-						 // +" 	DM.DMref,"
-						 // +" 	statusDM._Fld25920RRef nomenklref,"
-						 // +" 	DM.DM31 DM31"
-						 // +" from "
-						 // +" 	#DM DM"
-						 // +" 	join _InfoRg25894 statusDM on"
-						 // +" 	DM.DMref=statusDM._Fld25895RRef"
-						 // +" where	"
-						 // +" 	statusDM._Fld26017RRef=0xA825AC1F6B01E73D11E9676FEDC17C8E --'INTRODUCED', введен в оборот";
-		
-		// String query=" select "
-						// +" 	DM._IDRRef DMref,"
-						// +" 	DM._Description DM31 "
-						// +" into #DM"
-						// +" from "
-						// +" _Reference25834 DM"
-						// +" where"
-						// +" 	DM._Description='010290000021830721IGJ6QmlMUsq5v'"
-						// +" select"
-						// +" 	DM.DMref,"
-						// +" 	statusDM._Fld25920RRef nomenklref,"
-						// +" 	DM.DM31 DM31"
-						// +" into #DMstatus"
-						// +" from "
-						// +" 	#DM DM"
-						// +" 	join _InfoRg25894 statusDM on"
-						// +" 	DM.DMref=statusDM._Fld25895RRef"
-						// +" where	"
-						// +" 	statusDM._Fld26017RRef=0xA825AC1F6B01E73D11E9676FEDC17C8E --'INTRODUCED', введен в оборот"
-						// +" select "
-						// +" 	DMstatus.nomenklref nomenklref,"
-						// +" 	nomenkl._Fld4299 artikul,"
-						// +" 	DMstatus.DM31 DM31"
-						// +" from "
-						// +" 	#DMstatus DMstatus"
-						// +" 	join _Reference169 nomenkl on"
-						// +" 	DMstatus.nomenklref=nomenkl._IDRRef"
-						// +" drop table #DM"
-						// +" drop table #DMstatus";
-		
-			 //query="select top 100 _Fld4299 artikul from _Reference169 where _Fld4299='310836643'";
-			 
-			 
-			 
-			// String query="use trade_2017_stockmann; "
-						 // +" select "
-						 // +" nomenkl._Fld4299 artikul "
-						 // +" from "
-						 // +" _Reference169 nomenkl, "
-						 // +" _InfoRg25894 statusDM, "
-						 // +" _Reference25834 DM "
-						 // +" WHERE "
-						 // +" nomenkl._IDRRef=statusDM._Fld25920RRef and "
-						 // +" DM._IDRRef=statusDM._Fld25895RRef and statusDM._Fld26017RRef=0xA825AC1F6B01E73D11E9676FEDC17C8E --'INTRODUCED', введен в оборот "
-						 // +" and DM._Description='"+param+"'";
-
 		return query;
 	}
 }
