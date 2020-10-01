@@ -20,7 +20,7 @@ import javax.naming.NamingException;
 import java.util.logging.Logger;
 import java.util.logging.Level;
 
-import java.util.Collection.HashMap;
+import java.util.HashMap;
 
 
 public class DataMatrix extends HttpServlet{

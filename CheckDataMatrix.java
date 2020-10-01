@@ -21,18 +21,23 @@ import javax.naming.NamingException;
 import java.util.logging.Logger;
 import java.util.logging.Level;
 
+import java.util.HashMap;
+
 
 public class CheckDataMatrix extends HttpServlet{
 	
 	private static final Logger logger = Logger.getLogger("CheckDataMatrix");
 	
-	private int HTTPstatus=200;
-	private String message="";
+
 	
 	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException{
 			
 		//извлекаем список артикулов из тела запроса
 		String param="";
+	
+		HashMap<String,String> HTTPresult=new HashMap<>();
+		HTTPresult.put("code","200");
+		HTTPresult.put("message","");
 			
 		String body = request.getReader().lines().collect(Collectors.joining(System.lineSeparator()));
 		try{
@@ -40,48 +45,41 @@ public class CheckDataMatrix extends HttpServlet{
 			param = JSONobj.get("DM").toString();
 		}
 		catch (ParseException e){
-			logMes("Bad request body: "+param+". Exception: "+e.toString());
-			HTTPstatus=400;
-			message="Bad request body";
+			logMes("ParseException. Bad request body. Exception: "+e.toString());
+			HTTPresult.put("code","400");
+			HTTPresult.put("message","Bad request body");
 		}
 		catch (NullPointerException e){
-			logMes("Bad request body: "+param+". Exception: "+e.toString());
-			HTTPstatus=400;
-			message="Bad request body";			
+			logMes("NullPointerException. Bad request body. Exception: "+e.toString());
+			HTTPresult.put("code","400");
+			HTTPresult.put("message","Bad request body");			
 		}
 
-		if(HTTPstatus!=200){
-			response.sendError(HTTPstatus,message);
-			return;
-		}
-		
-		if (param.length()==0){
+		if (HTTPresult.get("code")=="200" && param.length()==0){
 			logMes("Bad request: Empty body");
-			HTTPstatus=400;
-			message="Empty body";
-		}
-		
-		if(HTTPstatus!=200){
-			response.sendError(HTTPstatus,message);
-			return;
+			HTTPresult.put("code","400");
+			HTTPresult.put("message","Empty body");
 		}
 		
 		//получение данных SQL и формирование ответа
-		connectUT(param);
-		
-		if(HTTPstatus!=200){
-			response.sendError(HTTPstatus,message);
-			return;
+		if (HTTPresult.get("code")=="200"){
+			connectUT(param,HTTPresult);
 		}
-
-		response.setContentType("application/json");
-		PrintWriter pw=response.getWriter();
-		pw.println(message);
-		pw.close();		
 		
+		if(HTTPresult.get("code")!="200"){
+			response.sendError(Integer.valueOf(HTTPresult.get("code")),HTTPresult.get("message"));
+			return;
+						
+		}
+		else{
+			response.setContentType("application/json");
+			PrintWriter pw=response.getWriter();
+			pw.println(HTTPresult.get("message"));
+			pw.close();		
+		}
 	}
 	
-	private void connectUT(String param){
+	private void connectUT(String param, HashMap<String,String> HTTPresult){
 		String query=getQueryText(param);
 
 		Context initContext;
@@ -115,7 +113,7 @@ public class CheckDataMatrix extends HttpServlet{
 			}
 			StringWriter out = new StringWriter();
 			JSONValue.writeJSONString(resJSON, out);
-			message=out.toString();
+			HTTPresult.put("message",out.toString());
 			
 			rs.close();
 			cstmt.close();
@@ -124,18 +122,18 @@ public class CheckDataMatrix extends HttpServlet{
 		// Handle any errors that may have occurred.
 		catch (NamingException e) {
 			logMes("NamingException param = "+param+" : "+e.toString());
-			HTTPstatus=500;
-			message="NamingException";				
+			HTTPresult.put("code","500");
+			HTTPresult.put("message","NamingException");				
 		}
 		catch (SQLException e) {
 			logMes("SQLException param = "+param+" : "+e.toString());
-			HTTPstatus=500;
-			message="SQLException";			
+			HTTPresult.put("code","500");
+			HTTPresult.put("message","SQLException");			
 		}
 		catch (IOException e) {
 			logMes("IOException param = "+param+" : "+e.toString());
-			HTTPstatus=500;
-			message="IOException";	
+			HTTPresult.put("code","500");
+			HTTPresult.put("message","IOException");	
 		}		  
 
 	}
@@ -159,7 +157,7 @@ public class CheckDataMatrix extends HttpServlet{
 						 +" 	statusDM._Fld25920RRef=nomenkl._IDRRef "
 						 +" where DM._Description=@decoded and statusDM._Fld26017RRef=0xA825AC1F6B01E73D11E9676FEDC17C8E --'INTRODUCED', введен в оборот";
 						 
-		logMes(query);
+		//logMes(query);
 		
 		return query;
 	}
