@@ -1,3 +1,5 @@
+import java.io.*;
+
 import javax.servlet.*;
 import javax.servlet.http.*;
 
@@ -6,7 +8,6 @@ import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-//import com.microsoft.sqlserver.jdbc.SQLServerDataSource;
 
 import java.util.stream.Collectors;
 import org.json.simple.*;
@@ -27,12 +28,14 @@ public class DataMatrix extends HttpServlet{
 	
 	private static final Logger logger = Logger.getLogger("DataMatrix");
 	
-	private HashMap<Integer,String> HTTPresult=new HashMap<>();
-	
 	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException{
 						
 		//извлекаем список артикулов из тела запроса
 		String param="";
+		
+		HashMap<String,String> HTTPresult=new HashMap<>();
+		HTTPresult.put("code","200");
+		HTTPresult.put("message","");
 		
 		String body = request.getReader().lines().collect(Collectors.joining(System.lineSeparator()));
 		try{
@@ -46,107 +49,127 @@ public class DataMatrix extends HttpServlet{
 			param=param.substring(0,param.length()-1);
 		}
 		catch (ParseException e){
-			logMes("Bad request body: "+param+". Exception: "+e.toString());
-			HTTPresult.put(400,"Bad request body");
+			logMes("ParseException. Bad request body. Exception: "+e.toString());
+			HTTPresult.put("code","400");
+			HTTPresult.put("message","Bad request body");
 		}
-		if (param.length()==0){
-			logMes("Bad request: Empty body");
-			HTTPresult.put(400,"Empty body");
+		catch (NullPointerException e){
+			logMes("NullPointerException. Bad request body. Exception: "+e.toString());
+			HTTPresult.put("code","400");
+			HTTPresult.put("message","Bad request body");			
 		}
 		
-		String mes=HTTPresult.get(400);
-		if(mes!=null){
-			response.sendError(400,mes);
-			return;
+		if (HTTPresult.get("code")=="200" && param.length()==0){
+			logMes("Bad request: Empty body");
+			HTTPresult.put("code","400");
+			HTTPresult.put("message","Empty body");
 		}
 		
 		//получение данных SQL и формирование ответа
-		connectUT(param);
+		if (HTTPresult.get("code")=="200"){
+			connectUT(param,HTTPresult);
+		}
 		
-		String mes=HTTPresult.get(500);
-		if(mes!=null){
-			response.sendError(500,mes);
+		if(HTTPresult.get("code")!="200"){
+			response.sendError(Integer.valueOf(HTTPresult.get("code")),HTTPresult.get("message"));
 			return;
-		}		
-		
-		String mes=HTTPresult.get(200);
-		
-		response.setContentType("application/json");
-		PrintWriter pw=response.getWriter();
-		pw.println(mes);
-		pw.close();		
+						
+		}
+		else{
+			response.setContentType("application/json");
+			PrintWriter pw=response.getWriter();
+			pw.println(HTTPresult.get("message"));
+			pw.close();		
+		}	
 		
 	}
 	
-	private void connectUT(String param){
+	private void connectUT(String param, HashMap<String,String> HTTPresult){
 		String query=getQueryText(param);
-		String response="";
 
+		Context initContext;
+		Context envContext;
 		DataSource ds;
+		Connection con;
+		CallableStatement cstmt;
+		ResultSet rs;
+		
 		JSONArray resJSON = new JSONArray();
+		JSONObject obj=new JSONObject();
+		
+		boolean hasData=false;
 		
 		try 
 		{
-			Context initContext = new InitialContext();
-			Context envContext  = (Context)initContext.lookup("java:/comp/env");
+
+			initContext = new InitialContext();
+			envContext  = (Context)initContext.lookup("java:/comp/env");
 			ds = (DataSource)envContext.lookup("jdbc/UT");
 
-			Connection con = ds.getConnection();
-			CallableStatement cstmt = con.prepareCall(query);
+			con = ds.getConnection();
+			cstmt = con.prepareCall(query);
 
-			ResultSet rs = cstmt.executeQuery();
+			rs = cstmt.executeQuery();
+			
 			while (rs.next()) {
-				JSONObject obj=new JSONObject();
 				obj.put("artikul",rs.getString("artikul"));
-				obj.put("DM",rs.getString("DM"));
+				obj.put("DMbase64",rs.getString("DMbase64"));
 				resJSON.add(obj);
+				hasData=true;
 			}
+			
 			StringWriter out = new StringWriter();
-			JSONValue.writeJSONString(resJSON, out);
-			response=out.toString();
+			if (hasData==true){
+				JSONValue.writeJSONString(resJSON, out);
+			}
+			else{
+				obj.put("result",null);
+				JSONValue.writeJSONString(obj, out);
+			}
+			HTTPresult.put("message",out.toString());
 		}
-		// Handle any errors that may have occurred.//todo перенести в лог
+		// Handle any errors that may have occurred.
 		catch (NamingException e) {
-			logMes("NamingException: "+e.toString());
-			HTTPresult.put(500,"NamingException");
+			logMes("NamingException param = "+param+" : "+e.toString());
+			HTTPresult.put("code","500");
+			HTTPresult.put("message","NamingException");				
 		}
 		catch (SQLException e) {
-			logMes("SQLException: "+e.toString());
-			HTTPresult.put(500,"SQLException");
+			logMes("SQLException param = "+param+" : "+e.toString());
+			HTTPresult.put("code","500");
+			HTTPresult.put("message","SQLException");			
 		}
 		catch (IOException e) {
-			logMes("IOException: "+e.toString());
-			HTTPresult.put(500,"IOException");
+			logMes("IOException param = "+param+" : "+e.toString());
+			HTTPresult.put("code","500");
+			HTTPresult.put("message","IOException");	
 		}		  
-
-		HTTPresult.put(200,response);
-		return response;
 	}
 	
 	//записать сообщение в файл
-	private void logMes(String mes){ //todo переделать на промышленное логирование //есть метод log в GeneralServlet
+	private void logMes(String mes){ 
 		logger.warning(mes);
 	}
-	private String getQueryText(String param){ //текст запроса к ценам товаров		
-		String query="select "
-						+"			_IDRRef nomenklref"
-						+"			,_Fld4299 artikul"
-						+"		into #nomenkl"
-						+"		from _Reference169 nomenkl"
-						+"		where _Fld4299 in ("+param+")"
-						+"		select"
-						+"			--nomenkl.nomenklref nomenklref"
-						+"			--,statusDM._Fld25895RRef DMref"
-						+"			nomenkl.artikul artikul"
-						+"			,DM._Description DM"
-						+"		from"
-						+"			#nomenkl nomenkl"
-						+"			join _InfoRg25894 statusDM on"
-						+"				nomenkl.nomenklref=statusDM._Fld25920RRef"
-						+"				and statusDM._Fld26017RRef=0xA825AC1F6B01E73D11E9676FEDC17C8E --'INTRODUCED', введен в оборот"
-						+"			join _Reference25834 DM on"
-						+"				statusDM._Fld25895RRef=DM._IDRRef"
-						+"		drop table #nomenkl";
+	private String getQueryText(String param){ 	
+		String query="select _IDRRef nomenklref ,_Fld4299 artikul "
+						+"into #nomenkl "
+						+"from _Reference169 nomenkl "
+						+"where _Fld4299 in ("+param+") "
+ 
+						+"select nomenkl.artikul artikul ,DM._Description DM "
+						+",cast(DM._Description as varbinary(max)) bin "
+						+"into #restable "
+						+"from #nomenkl nomenkl "
+						+"join _InfoRg25894 statusDM on nomenkl.nomenklref=statusDM._Fld25920RRef "
+						+"join _Reference25834 DM on statusDM._Fld25895RRef=DM._IDRRef "
+						+"where statusDM._Fld26017RRef=0xA825AC1F6B01E73D11E9676FEDC17C8E "
+						+"select artikul, DM, "
+						+"cast(N'' as xml).value('xs:base64Binary(xs:hexBinary(sql:column(\"bin\")))', 'varchar(max)') DMbase64 from #restable restable "
+						+"drop table #nomenkl "
+						+"drop table #restable";
+						
+		
+		//logMes(query);
 			
 		return query;
 	}

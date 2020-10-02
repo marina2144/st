@@ -1,5 +1,5 @@
+import java.io.*;
 
-import  java.io.*; //вывод на страницу HTML и в файл todo убрать
 import javax.servlet.*;
 import javax.servlet.http.*;
 
@@ -8,21 +8,20 @@ import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import com.microsoft.sqlserver.jdbc.SQLServerDataSource;
 
 import java.util.stream.Collectors;
 import org.json.simple.*;
 import org.json.simple.parser.*;
-import java.util.Iterator;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
+
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.sql.DataSource;
 import javax.naming.NamingException;
 
-import org.apache.juli.logging.Log;
-import org.apache.juli.logging.LogFactory;
+import java.util.logging.Logger;
+import java.util.logging.Level;
+
+import java.util.HashMap;
 
 
 public class LabelData extends HttpServlet{

@@ -28,11 +28,9 @@ public class CheckDataMatrix extends HttpServlet{
 	
 	private static final Logger logger = Logger.getLogger("CheckDataMatrix");
 	
-
-	
 	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException{
 			
-		//извлекаем список артикулов из тела запроса
+		//извлекаем DataMatrix из тела запроса, параметр DM, ожидается 31 символ кода, закодированные в Base64
 		String param="";
 	
 		HashMap<String,String> HTTPresult=new HashMap<>();
@@ -89,7 +87,7 @@ public class CheckDataMatrix extends HttpServlet{
 		CallableStatement cstmt;
 		ResultSet rs;
 		
-		JSONArray resJSON = new JSONArray();
+		//JSONArray resJSON = new JSONArray();
 		
 		try 
 		{
@@ -105,14 +103,14 @@ public class CheckDataMatrix extends HttpServlet{
 			JSONObject obj=new JSONObject();
 			if (rs.next()) {
 				obj.put("artikul",rs.getString("artikul"));
-				resJSON.add(obj);
+				//resJSON.add(obj);
 			}
 			else{
 				obj.put("artikul",null);
-				resJSON.add(obj);
+				//resJSON.add(obj);
 			}
 			StringWriter out = new StringWriter();
-			JSONValue.writeJSONString(resJSON, out);
+			JSONValue.writeJSONString(obj, out);
 			HTTPresult.put("message",out.toString());
 			
 			rs.close();
@@ -138,11 +136,11 @@ public class CheckDataMatrix extends HttpServlet{
 
 	}
 	
-	//записать сообщение в файл
-	private void logMes(String mes){ //todo переделать на промышленное логирование //есть метод log в GeneralServlet
+	//записать сообщение в лог
+	private void logMes(String mes){ 
 		logger.warning(mes);
 	}
-	private String getQueryText(String param){ //текст запроса к ценам товаров		
+	private String getQueryText(String param){ 		
 		 String query="declare @encoded varchar(max), @decoded varchar(max) "
 							+"set @encoded = '"+param+"' "
 							+"set @decoded = convert(varchar(max), cast('' as xml).value('xs:base64Binary(sql:variable(\"@encoded\"))', 'varbinary(max)')) "
