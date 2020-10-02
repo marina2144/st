@@ -95,7 +95,6 @@ public class DataMatrix extends HttpServlet{
 		ResultSet rs;
 		
 		JSONArray resJSON = new JSONArray();
-		JSONObject obj=new JSONObject();
 		
 		boolean hasData=false;
 		
@@ -112,6 +111,7 @@ public class DataMatrix extends HttpServlet{
 			rs = cstmt.executeQuery();
 			
 			while (rs.next()) {
+				JSONObject obj=new JSONObject();
 				obj.put("artikul",rs.getString("artikul"));
 				obj.put("DMbase64",rs.getString("DMbase64"));
 				resJSON.add(obj);
@@ -123,6 +123,7 @@ public class DataMatrix extends HttpServlet{
 				JSONValue.writeJSONString(resJSON, out);
 			}
 			else{
+				JSONObject obj=new JSONObject();
 				obj.put("result",null);
 				JSONValue.writeJSONString(obj, out);
 			}
@@ -169,7 +170,7 @@ public class DataMatrix extends HttpServlet{
 						+"drop table #restable";
 						
 		
-		//logMes(query);
+		logMes(query);
 			
 		return query;
 	}

@@ -1,4 +1,6 @@
 import java.io.*;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 import javax.servlet.*;
 import javax.servlet.http.*;
@@ -25,21 +27,24 @@ import java.util.HashMap;
 
 
 public class LabelData extends HttpServlet{
+	
+	private static final Logger logger = Logger.getLogger("LocalData");	
+	
 	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException{
-		
-		
-		logMes("HI!!!");
-		
-		
-		LocalDate date;
+
+		HashMap<String,String> HTTPresult=new HashMap<>();
+		HTTPresult.put("code","200");
+		HTTPresult.put("message","");		
+
+		LocalDate date=LocalDate.now();
 		try{
 			DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 			date=LocalDate.parse(request.getParameter("date"),dtf);
 		}
 		catch(Exception e){
-			//todo добавить логирование ошибки
-			response.sendError(400,"Bad date parameter");
-			return;			
+			logMes("Bad date parameter. "+e.toString());
+			HTTPresult.put("code","400");
+			HTTPresult.put("message","Bad date parameter");			
 		}
 		
 		//извлекаем список артикулов из тела запроса
@@ -57,111 +62,105 @@ public class LabelData extends HttpServlet{
 			param=param.substring(0,param.length()-1);
 		}
 		catch (ParseException e){
-			//todo добавить логирование ошибки
-			//param=e.toString();
-			response.sendError(400,"Bad request body");
-			return;
+			logMes("ParseException. Bad request body. Exception: "+e.toString());
+			HTTPresult.put("code","400");
+			HTTPresult.put("message","Bad request body");
 		}
-		if (param.length()==0){
-			//todo добавить логирование ошибки
-			response.sendError(400,"Bad request body");
-			return;
+		catch (NullPointerException e){
+			logMes("NullPointerException. Bad request body. Exception: "+e.toString());
+			HTTPresult.put("code","400");
+			HTTPresult.put("message","Bad request body");			
+		}		
+		
+		if (HTTPresult.get("code")=="200" && param.length()==0){
+			logMes("Bad request: Empty body");
+			HTTPresult.put("code","400");
+			HTTPresult.put("message","Empty body");
 		}
 		
 		//получение данных SQL и формирование ответа
-		String result=connectUT(param,date);//todo если параметр - ошибка, завершать
+		if (HTTPresult.get("code")=="200"){
+			connectUT(param,date,HTTPresult);
+		}
 		
-		//String result=connectUT();
-		response.setContentType("application/json");
-		PrintWriter pw=response.getWriter();
-		pw.println(result);
-		pw.close();
-		
-		//logMes(result);
+		if(HTTPresult.get("code")!="200"){
+			response.sendError(Integer.valueOf(HTTPresult.get("code")),HTTPresult.get("message"));
+			return;
+						
+		}
+		else{
+			response.setContentType("application/json");
+			PrintWriter pw=response.getWriter();
+			pw.println(HTTPresult.get("message"));
+			pw.close();		
+		}
 		
 		
 	}
 	
-	//создает соединение с 1С УТ
-	// 0-успешно
-	// 1-ошибка
-	private String connectUT(String param, LocalDate date){
-		  String query=getQueryText(param, date);
-		  
-		  //if(query.length()>1)
-		  //return query;	
+	private void connectUT(String param, LocalDate date,  HashMap<String,String> HTTPresult){
+		String query=getQueryText(param, date);		
 		
-		String result="";
-		
-		/*
-		 // Create datasource.
-      SQLServerDataSource ds = new SQLServerDataSource();
-      ds.setUser("ut_read"); //todo перенести параметры подключения в файл настроек
-      ds.setPassword("UT_Reader_123");
-      ds.setServerName("hv03004");
-      ds.setPortNumber(1433);
-      ds.setDatabaseName("trade_2017_stockmann");
-		
-		*/
-		  
+		Context initContext;
+		Context envContext;
 		DataSource ds;
+		Connection con;
+		CallableStatement cstmt;
+		ResultSet rs;
+		
 		JSONArray resJSON = new JSONArray();
 		
+		boolean hasData=false;
+		
+		try 
+		{
 
-	  try 
-	  {
-		Context initContext = new InitialContext();
-		Context envContext  = (Context)initContext.lookup("java:/comp/env");
-		ds = (DataSource)envContext.lookup("jdbc/UT");
-		
-		Connection con = ds.getConnection();
-		CallableStatement cstmt = con.prepareCall(query);
-		
-			ResultSet rs = cstmt.executeQuery();
+			initContext = new InitialContext();
+			envContext  = (Context)initContext.lookup("java:/comp/env"); //todo описать
+			ds = (DataSource)envContext.lookup("jdbc/UT");
+
+			con = ds.getConnection();
+			cstmt = con.prepareCall(query);
+			rs = cstmt.executeQuery();
+
 			while (rs.next()) {
 				JSONObject obj=new JSONObject();
 				obj.put("artikul",rs.getString("artikul"));
 				obj.put("price",rs.getString("price"));
 				resJSON.add(obj);
+				hasData=true;
 			}
 			StringWriter out = new StringWriter();
-			JSONValue.writeJSONString(resJSON, out);
-			result=out.toString();
-	  }
-	  // Handle any errors that may have occurred.//todo перенести в лог
-	  catch (NamingException e) {
-			result=e.toString();
-			e.printStackTrace();			
-      }
-	  catch (SQLException e) {
-			result=e.toString();
-			e.printStackTrace();
-	  }
-	  catch (IOException e) {
-			result=e.toString();
-			e.printStackTrace();
-	  }		  
-	  
-	  return result;
-	}
+			if (hasData==true){
+				JSONValue.writeJSONString(resJSON, out);
+			}
+			else{
+				JSONObject obj=new JSONObject();
+				obj.put("result",null);
+				JSONValue.writeJSONString(obj, out);
+			}
+			HTTPresult.put("message",out.toString());
+		}
+		// Handle any errors that may have occurred.
+		catch (NamingException e) {
+			logMes("NamingException param = "+param+" : "+e.toString());
+			HTTPresult.put("code","500");
+			HTTPresult.put("message","NamingException");				
+		}
+		catch (SQLException e) {
+			logMes("SQLException param = "+param+" : "+e.toString());
+			HTTPresult.put("code","500");
+			HTTPresult.put("message","SQLException");			
+		}
+		catch (IOException e) {
+			logMes("IOException param = "+param+" : "+e.toString());
+			HTTPresult.put("code","500");
+			HTTPresult.put("message","IOException");	
+		}
+		}
 	
-	//записать сообщение в файл
-	private void logMes(String mes){ //todo переделать на промышленное логирование //есть метод log в GeneralServlet
-	
-		// try(FileWriter writer = new FileWriter("C:\\JavaProjects\\otes3.txt", false))
-        // {
-        ////   запись всей строки
-            // String text = mes;
-            // writer.write(text);
-            // writer.flush();
-        // }
-        // catch(IOException ex){
-             
-            // System.out.println(ex.getMessage());
-        // } 
-		
-		log = LogFactory.getLog(getClass());
-        log.info("Starting test case [   "+mes);
+	private void logMes(String mes){ 
+		logger.warning(mes);
 	}
 	private String getQueryText(String param, LocalDate date) //текст запроса к ценам товаров
 	{

@@ -87,8 +87,6 @@ public class CheckDataMatrix extends HttpServlet{
 		CallableStatement cstmt;
 		ResultSet rs;
 		
-		//JSONArray resJSON = new JSONArray();
-		
 		try 
 		{
 			initContext = new InitialContext();
@@ -103,11 +101,9 @@ public class CheckDataMatrix extends HttpServlet{
 			JSONObject obj=new JSONObject();
 			if (rs.next()) {
 				obj.put("artikul",rs.getString("artikul"));
-				//resJSON.add(obj);
 			}
 			else{
 				obj.put("artikul",null);
-				//resJSON.add(obj);
 			}
 			StringWriter out = new StringWriter();
 			JSONValue.writeJSONString(obj, out);
